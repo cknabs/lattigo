@@ -79,6 +79,7 @@ func TestHash_Add(t *testing.T) {
 	}
 }
 
+// TODO: fails
 func TestHash_Mul(t *testing.T) {
 	// Test if Hash() is homomorphic w.r.t. multiplications
 	params := getParams()

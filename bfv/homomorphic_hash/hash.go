@@ -4,6 +4,8 @@ package homomorphic_hash
 
 import (
 	"github.com/ldsec/lattigo/v2/bfv"
+	"github.com/ldsec/lattigo/v2/ring"
+	"github.com/ldsec/lattigo/v2/utils"
 	"github.com/stretchr/testify/require"
 	"math/big"
 )
@@ -33,7 +35,7 @@ func (h1 *hash) Add(h2 *hash) *hash {
 
 	res := make([]*big.Int, len(h1.Q))
 	for k := 0; k < len(res); k++ {
-		res[k] = big.NewInt(0)
+		res[k] = new(big.Int)
 		res[k] = res[k].Add(h1.Values[k], h2.Values[k])
 		res[k] = res[k].Mod(res[k], big.NewInt(int64(h1.Q[k])))
 	}
@@ -46,7 +48,7 @@ func (h1 *hash) Mul(h2 *hash) *hash {
 
 	res := make([]*big.Int, len(h1.Q))
 	for k := 0; k < len(res); k++ {
-		res[k] = big.NewInt(0)
+		res[k] = new(big.Int)
 		res[k] = res[k].Mul(h1.Values[k], h2.Values[k])
 		res[k] = res[k].Mod(res[k], big.NewInt(int64(h1.Q[k])))
 	}
@@ -55,14 +57,14 @@ func (h1 *hash) Mul(h2 *hash) *hash {
 }
 
 func NewHasher(params bfv.Parameters) Hasher {
-	//prng, err := utils.NewPRNG()
-	//if err != nil {
-	//	panic(err)
-	//}
+	prng, err := utils.NewPRNG()
+	if err != nil {
+		panic(err)
+	}
 	// TODO: Very inefficient (but correct) sampling from Z_q
-	//sampler := ring.NewUniformSampler(prng, params.RingQ())
-	alpha := uint64(0) //sampler.ReadNew().Coeffs[0][0]
-	beta := uint64(0)  //sampler.ReadNew().Coeffs[0][1]
+	sampler := ring.NewUniformSampler(prng, params.RingQ())
+	alpha := sampler.ReadNew().Coeffs[0][0]
+	beta := sampler.ReadNew().Coeffs[0][1]
 
 	return &hasher{params, alpha, beta}
 }
